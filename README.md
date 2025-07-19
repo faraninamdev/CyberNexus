@@ -1,6 +1,6 @@
 __🌌 CyberNexus - Dive into the Digital Abyss:__
 
-- A cutting-dge cyberpunk-themed website, designed to immerse users in a futuristic digital world. It features dynamic visuals, interactive elements, and a sleek neon aesthetic.
+- A cutting-edge cyberpunk-themed website, designed to immerse users in a futuristic digital world. It features dynamic visuals, interactive elements, and a sleek neon aesthetic.
 
 __🌟 Features:__
 
@@ -50,7 +50,7 @@ __🚀 How to Run:__
 
 __🌐 Live Demo:__
 
-
+- https://faran-inam.github.io/CyberNexus/
 
 __📄 License:__
 
