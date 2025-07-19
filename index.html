@@ -1,0 +1,260 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberNexus - Dive into the Digital Abyss</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body class="min-h-screen flex flex-col relative">
+    <canvas id="particle-bg"></canvas>
+    <header class="bg-black bg-opacity-70 p-3 sticky top-0 z-10">
+        <nav class="flex items-center justify-between max-w-7xl mx-auto">
+            <h1 class="text-xl md:text-2xl font-bold neon-text glitch" data-text="CyberNexus">CyberNexus</h1>
+            <button class="md:hidden text-2xl focus:outline-none" aria-label="Toggle menu" id="menu-toggle">☰</button>
+            <ul class="hidden md:flex space-x-8 text-base">
+                <li><a href="#home" class="hover:text-[var(--secondary-neon)] transition neon-text">Home</a></li>
+                <li><a href="#about" class="hover:text-[var(--secondary-neon)] transition neon-text">About</a></li>
+                <li><a href="#data-vault" class="hover:text-[var(--secondary-neon)] transition neon-text">Data Vault</a></li>
+                <li><a href="#terminal" class="hover:text-[var(--secondary-neon)] transition neon-text">Terminal</a></li>
+                <li><a href="#chronicles" class="hover:text-[var(--secondary-neon)] transition neon-text">Neon Chronicles</a></li>
+                <li><a href="#netrunners" class="hover:text-[var(--secondary-neon)] transition neon-text">Netrunners Hub</a></li>
+                <li><a href="#contact" class="hover:text-[var(--secondary-neon)] transition neon-text">Contact</a></li>
+            </ul>
+        </nav>
+        <ul class="md:hidden flex flex-col space-y-1 mt-2 hidden transition-all duration-300 ease-in-out" id="mobile-menu">
+            <li><a href="#home" class="hover:text-[var(--secondary-neon)] transition neon-text">Home</a></li>
+            <li><a href="#about" class="hover:text-[var(--secondary-neon)] transition neon-text">About</a></li>
+            <li><a href="#data-vault" class="hover:text-[var(--secondary-neon)] transition neon-text">Data Vault</a></li>
+            <li><a href="#terminal" class="hover:text-[var(--secondary-neon)] transition neon-text">Terminal</a></li>
+            <li><a href="#chronicles" class="hover:text-[var(--secondary-neon)] transition neon-text">Neon Chronicles</a></li>
+            <li><a href="#netrunners" class="hover:text-[var(--secondary-neon)] transition neon-text">Netrunners Hub</a></li>
+            <li><a href="#contact" class="hover:text-[var(--secondary-neon)] transition neon-text">Contact</a></li>
+        </ul>
+    </header>
+
+    <section id="home" class="flex-1 flex items-center justify-center bg-cover bg-center py-20 grid-overlay parallax" style="background-image: url('https://source.unsplash.com/random/1600x900?cyberpunk')">
+        <div class="text-center max-w-3xl mx-auto px-4 fade-in">
+            <h2 class="text-4xl md:text-5xl font-bold neon-text glitch mb-6" data-text="Enter the Neon-Lit Abyss">Enter the Neon-Lit Abyss</h2>
+            <p class="text-lg md:text-xl mb-8 font-['Roboto_Mono']">Dive into the digital frontier. Hack the grid, chase the signal, and forge your legend in the sprawl.</p>
+            <button id="jack-in" class="neon-button font-bold py-2 px-6 rounded neon-text">Jack In</button>
+        </div>
+    </section>
+
+    <section class="py-4 bg-black bg-opacity-90 border-t border-[var(--primary-neon)]">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="marquee font-['Roboto_Mono'] text-[var(--secondary-neon)]">
+                <span id="data-ticker">Data Stream: Node 47 online | Hack detected in Sector 9</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-16 bg-[#0a0a0a] border-t border-[var(--primary-neon)] grid-overlay parallax" style="background-image: url('https://source.unsplash.com/random/1600x900?matrix')">
+        <div class="max-w-7xl mx-auto px-4 fade-in">
+            <h2 class="text-3xl md:text-4xl font-bold neon-text glitch mb-8 text-center" data-text="Our Network">Our Network</h2>
+            <p class="text-lg md:text-xl leading-relaxed font-['Roboto_Mono']">
+                CyberNexus is the beating heart of the 2077 digital sprawl, a megacorp forged in rebellion against corporate tyranny. We weave a decentralized grid connecting shadowrunners, netdivers, and rogue AIs across neon-lit megacities and virtual voids. Our mission: empower the outcasts to seize their data, hack the mainframes, and rewrite the future.
+            </p>
+            <p class="text-lg md:text-xl mt-4 font-['Roboto_Mono']">
+                Born in the chaos of the 2049 Data Wars, CyberNexus emerged from rogue coders and rebel hackers uniting to dismantle corporate control. Now, we operate nodes in every megacity, offering quantum encryption, secure data trades, and a sanctuary for those who defy the system. Plug in, or fade into static.
+            </p>
+        </div>
+    </section>
+
+    <section id="data-vault" class="py-16 bg-black bg-opacity-90 border-t border-[var(--primary-neon)] grid-overlay">
+        <div class="max-w-7xl mx-auto px-4 fade-in">
+            <h2 class="text-3xl md:text-4xl font-bold neon-text glitch mb-8 text-center" data-text="Data Vault">Data Vault</h2>
+            <p class="text-lg md:text-xl mb-8 font-['Roboto_Mono'] text-center">Access our arsenal of tools to dominate the digital frontier.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card p-6 rounded" data-tilt>
+                    <h3 class="text-xl font-bold neon-text mb-4">Quantum Vault</h3>
+                    <p class="font-['Roboto_Mono']">Store your data in an unbreakable quantum-encrypted vault.</p>
+                    <div class="card-content hidden mt-4 font-['Roboto_Mono']">
+                        <p>Quantum entanglement protocols ensure no breach goes undetected.</p>
+                    </div>
+                </div>
+                <div class="card p-6 rounded" data-tilt>
+                    <h3 class="text-xl font-bold neon-text mb-4">AI Shadowrunner</h3>
+                    <p class="font-['Roboto_Mono']">Deploy rogue AI agents to infiltrate corporate networks.</p>
+                    <div class="card-content hidden mt-4 font-['Roboto_Mono']">
+                        <p>Adaptive algorithms evade firewalls and decrypt data streams.</p>
+                    </div>
+                </div>
+                <div class="card p-6 rounded" data-tilt>
+                    <h3 class="text-xl font-bold neon-text mb-4">Dark Web Broker</h3>
+                    <p class="font-['Roboto_Mono']">Trade encrypted data on our anonymous marketplace.</p>
+                    <div class="card-content hidden mt-4 font-['Roboto_Mono']">
+                        <p>Zero-trace transactions powered by blockchain tech.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="terminal" class="py-16 bg-[#0a0a0a] border-t border-[var(--primary-neon)] grid-overlay">
+        <div class="max-w-3xl mx-auto px-4 fade-in">
+            <h2 class="text-3xl md:text-4xl font-bold neon-text glitch mb-8 text-center" data-text="Grid Terminal">Grid Terminal</h2>
+            <p class="text-lg md:text-xl mb-8 font-['Roboto_Mono'] text-center">Access the CyberNexus grid. Enter commands to interact.</p>
+            <div class="terminal">
+                <div id="terminal-output" class="terminal-output mb-4"></div>
+                <div class="flex">
+                    <span class="terminal-input"></span>
+                    <input type="text" id="terminal-input" class="flex-1 bg-transparent border-none outline-none text-[var(--primary-neon)] font-['Roboto_Mono']" placeholder="Type 'help' for commands..." aria-label="Terminal input">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="chronicles" class="py-16 bg-black bg-opacity-90 border-t border-[var(--primary-neon)] grid-overlay parallax" style="background-image: url('https://source.unsplash.com/random/1600x900?neon')">
+        <div class="max-w-7xl mx-auto px-4 fade-in">
+            <h2 class="text-3xl md:text-4xl font-bold neon-text glitch mb-8 text-center" data-text="Neon Chronicles">Neon Chronicles</h2>
+            <p class="text-lg md:text-xl mb-8 font-['Roboto_Mono'] text-center">The history of CyberNexus, forged in code and rebellion.</p>
+            <div class="space-y-8">
+                <div class="card p-6 rounded" data-tilt>
+                    <h3 class="text-xl font-bold neon-text mb-2">2049: The Data Wars</h3>
+                    <p class="font-['Roboto_Mono']">Corporate giants seize global data. Rogue coders form the first CyberNexus cell.</p>
+                </div>
+                <div class="card p-6 rounded" data-tilt>
+                    <h3 class="text-xl font-bold neon-text mb-2">2057: Quantum Breakthrough</h3>
+                    <p class="font-['Roboto_Mono']">CyberNexus develops quantum encryption. The grid goes live.</p>
+                </div>
+                <div class="card p-6 rounded" data-tilt>
+                    <h3 class="text-xl font-bold neon-text mb-2">2065: The Sprawl Expands</h3>
+                    <p class="font-['Roboto_Mono']">Nodes activate in megacities worldwide. Netrunners join the fight.</p>
+                </div>
+                <div class="card p-6 rounded" data-tilt>
+                    <h3 class="text-xl font-bold neon-text mb-2">2077: The Abyss Awaits</h3>
+                    <p class="font-['Roboto_Mono']">CyberNexus stands as the last bastion of freedom.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="netrunners" class="py-16 bg-[#0a0a0a] border-t border-[var(--primary-neon)] grid-overlay">
+        <div class="max-w-7xl mx-auto px-4 fade-in">
+            <h2 class="text-3xl md:text-4xl font-bold neon-text glitch mb-8 text-center" data-text="Netrunners Hub">Netrunners Hub</h2>
+            <p class="text-lg md:text-xl mb-8 font-['Roboto_Mono'] text-center">Join the rebels, hackers, and visionaries shaping the sprawl.</p>
+            <div class="marquee mb-8 font-['Roboto_Mono'] text-[var(--secondary-neon)]">
+                <span>Latest Signals: Netrunner "Ghost" breaches Arasaka firewall | Quantum node online in Neon City...</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card p-6 rounded" data-tilt>
+                    <h3 class="text-xl font-bold neon-text mb-4">Ghost</h3>
+                    <p class="font-['Roboto_Mono']">Legendary netrunner. Infiltrates megacorp servers.</p>
+                    <div class="card-content hidden mt-4 font-['Roboto_Mono']">
+                        <p>Skills: Stealth Hacking<br>Rep: 9.8/10<br>Last Seen: Neon City</p>
+                    </div>
+                </div>
+                <div class="card p-6 rounded" data-tilt>
+                    <h3 class="text-xl font-bold neon-text mb-4">Neon Vibe</h3>
+                    <p class="font-['Roboto_Mono']">Street coder running black-market scripts.</p>
+                    <div class="card-content hidden mt-4 font-['Roboto_Mono']">
+                        <p>Skills: Neural Coding<br>Rep: 8.5/10<br>Last Seen: Dark Web</p>
+                    </div>
+                </div>
+                <div class="card p-6 rounded" data-tilt>
+                    <h3 class="text-xl font-bold neon-text mb-4">Cipher</h3>
+                    <p class="font-['Roboto_Mono']">AI whisperer. Builds rogue intelligences.</p>
+                    <div class="card-content hidden mt-4 font-['Roboto_Mono']">
+                        <p>Skills: AI Development<br>Rep: 9.2/10<br>Last Seen: Sector 7</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-8">
+                <button class="neon-button font-bold py-2 px-6 rounded neon-text" onclick="document.querySelectorAll('#netrunners .card-content').forEach(el => el.classList.toggle('hidden'))">Toggle Profiles</button>
+                <button class="neon-button font-bold py-2 px-6 rounded neon-text ml-4" onclick="alert('Join the grid! Sign up in the Contact section.')">Become a Netrunner</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-16 bg-black bg-opacity-90 border-t border-[var(--primary-neon)] grid-overlay">
+        <div class="max-w-3xl mx-auto px-4 fade-in">
+            <h2 class="text-3xl md:text-4xl font-bold neon-text glitch mb-8 text-center" data-text="Connect to the Grid">Connect to the Grid</h2>
+            <form id="contact-form" class="space-y-4">
+                <div class="relative">
+                    <input type="text" id="name" placeholder="Your Handle" class="w-full p-3 bg-[#1a1a1a] border border-[var(--primary-neon)] rounded text-[var(--primary-neon)] focus:outline-none focus:border-[var(--secondary-neon)] font-['Roboto_Mono']" required>
+                    <span class="absolute right-3 top-3 text-red-500 hidden" id="name-error">Required</span>
+                </div>
+                <div class="relative">
+                    <input type="email" id="email" placeholder="Your Data Stream (Email)" class="w-full p-3 bg-[#1a1a1a] border border-[var(--primary-neon)] rounded text-[var(--primary-neon)] focus:outline-none focus:border-[var(--secondary-neon)] font-['Roboto_Mono']" required>
+                    <span class="absolute right-3 top-3 text-red-500 hidden" id="email-error">Invalid email</span>
+                </div>
+                <div class="relative">
+                    <textarea id="message" placeholder="Your Signal" class="w-full p-3 bg-[#1a1a1a] border border-[var(--primary-neon)] rounded text-[var(--primary-neon)] focus:outline-none focus:border-[var(--secondary-neon)] font-['Roboto_Mono']" rows="5" required></textarea>
+                    <span class="absolute right-3 top-3 text-red-500 hidden" id="message-error">Required</span>
+                </div>
+                <label class="flex items-center space-x-2 font-['Roboto_Mono']">
+                    <input type="checkbox" id="newsletter" class="bg-[#1a1a1a] border-[var(--primary-neon)]">
+                    <span>Subscribe to Neon Signals Newsletter</span>
+                </label>
+                <button type="submit" class="neon-button font-bold py-2 px-6 rounded neon-text">Send Signal</button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="bg-black bg-opacity-90 py-6 text-center border-t border-[var(--primary-neon)] fade-in">
+        <p class="text-lg font-['Roboto_Mono']">CyberNexus © 2077. Code the future, break the past.</p>
+        <div class="mt-4 space-x-4">
+            <a href="#data-vault" class="hover:text-[var(--secondary-neon)] transition neon-text">Data Vault</a>
+            <a href="#terminal" class="hover:text-[var(--secondary-neon)] transition neon-text">Terminal</a>
+            <a href="https://x.com" class="hover:text-[var(--secondary-neon)] transition neon-text">X</a>
+            <a href="https://matrix.org" class="hover:text-[var(--secondary-neon)] transition neon-text">Matrix</a>
+            <a href="https://discord.com" class="hover:text-[var(--secondary-neon)] transition neon-text">Discord</a>
+            <button class="neon-button text-sm py-1 px-3 rounded" id="theme-toggle" aria-label="Toggle theme">Switch Theme</button>
+        </div>
+    </footer>
+
+    <div id="modal" class="modal">
+        <div class="modal-content neon-text">
+            <h3 class="text-2xl mb-4 glitch" data-text="Jacking In...">Jacking In...</h3>
+            <div class="loader"></div>
+            <p class="mt-4 font-['Roboto_Mono']">Accessing the Grid. Decrypting data streams...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
