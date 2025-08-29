@@ -64,4 +64,4 @@ __📧 Let's Connect:__
 
 - Your Name: Faran Inam
 
-- Your Email: faraninam.18@gmail.com
+- Your Email: faraninam.dev@gmail.com
