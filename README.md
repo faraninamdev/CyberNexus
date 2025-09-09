@@ -50,7 +50,7 @@ __🚀 How to Run:__
 
 __🌐 Live Demo:__
 
-- https://faran-inam.github.io/CyberNexus/
+- https://faraninamdev.github.io/CyberNexus/
 
 __📄 License:__
 
